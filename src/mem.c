@@ -195,7 +195,9 @@ uint8_t readmem(uint16_t addr)
                     if (addr==0xFC70) return readadc();
                     if (addr==0xFC72) return getplus1stat();
             }
-            if (addr>=0xFC60 && addr<=0xFC6F && plus1) return readserial(addr);
+            if (!enable_merlin)
+                if (addr>=0xFC60 && addr<=0xFC6F && plus1) return readserial(addr - 0xFC60);
+
 //          if ((addr&~0x1F)==0xFC20) return readsid(addr);
 
             /* Allow the JIM paging register to be read if enabled directly or
@@ -203,11 +205,27 @@ uint8_t readmem(uint16_t addr)
             if (enable_jim && (addr == 0xfcff))
                 return jim_page;
 
+            if (enable_merlin) {
+                switch (addr & 0xfff0) {
+                case 0xfc50: /* DUART (SCN2681) */
+//                    fprintf(stdout, "read: DUART: %04x pc=%04x (&f4)=%02x\n", addr, pc, ram[0xf4]);
+                    return readserial(addr - 0xfc50);
+                case 0xfc60: /* VIA1 (6522) */
+//                    fprintf(stdout, "read: VIA1: %04x pc=%04x (&f4)=%02x\n", addr, pc, ram[0xf4]);
+                    break;
+                case 0xfc70: /* VIA2 (6522) */
+//                    fprintf(stdout, "read: VIA2: %04x pc=%04x (&f4)=%02x\n", addr, pc, ram[0xf4]);
+                    break;
+                default:
+                    break;
+                }
+            }
+
             return addr>>8;
         }
         case 0xFD00: /* Paged RAM exposed in page FD */
         {
-            if (enable_jim) {
+            if (enable_jim) /* also with enable_merlin */ {
                 //fprintf(stdout, "FD: (%02x) %04x %02x\n", jim_page, addr, jim_ram[jim_page][addr & 0xff]);
                 return jim_ram[jim_page & 0x7f][addr & 0xff];
             }else
@@ -227,18 +245,6 @@ void writemem(uint16_t addr, uint8_t val)
 {
         if (debugon) debugwrite(addr,val);
         writec[addr]=31;
-//        if (addr==0x5820) rpclog("Write 5820\n");
-//        if (addr==0x5B10) rpclog("Write 5B10\n");
-//        if (addr==0x5990) rpclog("Write 5990\n");
-//        if (addr==0x5D70) rpclog("Write 5D70\n");
-//        if (addr==0x6798) rpclog("Write 6798\n");
-//        if (addr==0x5C00) rpclog("Write 5C00\n");
-//        if (addr==0x6710) rpclog("Write 6710\n");
-//        if (addr==0x5FC0) rpclog("Write 5FC0\n");
-//        if (addr==0x6490) rpclog("Write 6490\n");
-//        if (addr==0x5820) rpclog("Write 5820\n");
-//        if (addr>=0x5800 && addr<0x8000) rpclog("Write %04X %02X %04X %i %i\n",addr,val,pc,FASTHIGH,FASTHIGH2);
-//if (addr>0xFC00) rpclog("Write %04X %02X\n",addr,val);
         if (addr<0x2000)
         {
                 if (FASTLOW) ram2[addr]=val;
@@ -278,6 +284,23 @@ void writemem(uint16_t addr, uint8_t val)
         default:
             break;
         }
+
+        if (enable_merlin) {
+            switch (addr & 0xfff0) {
+            case 0xfc50: /* DUART (SCN2681) */
+//                fprintf(stdout, "write: DUART: %04x %02x pc=%04x (&f4)=%02x\n", addr, val, pc, ram[0xf4]);
+                break;
+            case 0xfc60: /* VIA1 (6522) */
+//                fprintf(stdout, "write: VIA1: %04x %02x pc=%04x (&f4)=%02x\n", addr, val, pc, ram[0xf4]);
+                break;
+            case 0xfc70: /* VIA2 (6522) */
+//                fprintf(stdout, "write: VIA2: %04x %02x pc=%04x (&f4)=%02x\n", addr, val, pc, ram[0xf4]);
+                break;
+            default:
+                break;
+            }
+        }
+
         if ((addr&0xFFF8)==0xFCC0 && plus3) write1770(addr,val);
 //        if ((addr&~0x1F)==0xFC20) writesid(addr,val);
 
@@ -306,7 +329,11 @@ void writemem(uint16_t addr, uint8_t val)
 //                if (!val) output=1;
         }
         if (addr==0xFC70 && plus1) writeadc(val);
-        if (addr>=0xFC60 && addr<=0xFC6F && plus1) return writeserial(addr, val);
+        if (enable_merlin)
+            if (addr>=0xFC50 && addr<=0xFC5F) return writeserial(addr - 0xFC50, val);
+        else
+            if (addr>=0xFC60 && addr<=0xFC6F && plus1) return writeserial(addr - 0xFC60, val);
+
         if (addr==0xFC71 && plus1) writeparallel(val);
         /* The Mega Games Cartridge uses FC00 to select pairs of 16K banks in
            the two sets of ROMs. */

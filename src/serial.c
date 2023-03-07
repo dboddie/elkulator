@@ -48,29 +48,29 @@ static int receive_cycles, transmit_cycles;
 
 enum sr_fc_address
 {
-        FC_BASE  = 0xFC60,
-        FC_MRxA  = 0xFC60, /* Mode register A (MR1A, MR2A) */
-        FC_SRA   = 0xFC61, /* Status register A (SRA) */
-        FC_CSRA  = 0xFC61, /* Clock select register A (CSRA) */
-        FC_CRA   = 0xFC62, /* Command register A (CRA) */
-        FC_RHRA  = 0xFC63, /* Receive holding register A (RHRA) */
-        FC_THRA  = 0xFC63, /* Transmit holding register A (THRA) */
-        FC_IPCR  = 0xFC64, /* Input port change register (IPCR) */
-        FC_ACR   = 0xFC64, /* Aux control register (ACR) */
-        FC_ISR   = 0xFC65, /* Interrupt status register (ISR) */
-        FC_IMR   = 0xFC65, /* Interrupt mask register (IMR) */
-        FC_MRxB  = 0xFC68, /* Mode register B (MR1B, MR2B) */
-        FC_SRB   = 0xFC69, /* Status register B (SRB) */
-        FC_CSRB  = 0xFC69, /* Clock select register B (CSRB) */
-        FC_CRB   = 0xFC6A, /* Command register B (CRB) */
-        FC_RHRB  = 0xFC6B, /* Receive holding register B (RHRB) */
-        FC_THRB  = 0xFC6B, /* Transmit holding register B (THRB) */
-        FC_IP06  = 0xFC6D, /* Input ports IP0 to IP6 */
-        FC_OPCR  = 0xFC6D, /* Output port configuration register (OPCR) */
-        FC_STCC  = 0xFC6E, /* Start counter command */
-        FC_SOPBC = 0xFC6E, /* Set output port bits command */
-        FC_SPCC  = 0xFC6F, /* Stop counter command */
-        FC_ROPBC = 0xFC6F  /* Reset output port bits command */
+        FC_BASE  = 0x0,
+        FC_MRxA  = 0x0, /* Mode register A (MR1A, MR2A) */
+        FC_SRA   = 0x1, /* Status register A (SRA) */
+        FC_CSRA  = 0x1, /* Clock select register A (CSRA) */
+        FC_CRA   = 0x2, /* Command register A (CRA) */
+        FC_RHRA  = 0x3, /* Receive holding register A (RHRA) */
+        FC_THRA  = 0x3, /* Transmit holding register A (THRA) */
+        FC_IPCR  = 0x4, /* Input port change register (IPCR) */
+        FC_ACR   = 0x4, /* Aux control register (ACR) */
+        FC_ISR   = 0x5, /* Interrupt status register (ISR) */
+        FC_IMR   = 0x5, /* Interrupt mask register (IMR) */
+        FC_MRxB  = 0x8, /* Mode register B (MR1B, MR2B) */
+        FC_SRB   = 0x9, /* Status register B (SRB) */
+        FC_CSRB  = 0x9, /* Clock select register B (CSRB) */
+        FC_CRB   = 0xA, /* Command register B (CRB) */
+        FC_RHRB  = 0xB, /* Receive holding register B (RHRB) */
+        FC_THRB  = 0xB, /* Transmit holding register B (THRB) */
+        FC_IP06  = 0xD, /* Input ports IP0 to IP6 */
+        FC_OPCR  = 0xD, /* Output port configuration register (OPCR) */
+        FC_STCC  = 0xE, /* Start counter command */
+        FC_SOPBC = 0xE, /* Set output port bits command */
+        FC_SPCC  = 0xF, /* Stop counter command */
+        FC_ROPBC = 0xF  /* Reset output port bits command */
 };
 
 /* Serial register storage. */
@@ -1125,7 +1125,8 @@ void resetserial()
                 socket_fd = socket_open(serialname);
 }
 
-/* Read from a serial controller register. */
+/* Read from a serial controller register using an address offset into the
+   16 byte memory range allocated to it. */
 
 uint8_t readserial(uint16_t addr)
 {

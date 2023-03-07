@@ -15,6 +15,7 @@ int joffset;
 int enable_mgc;
 int enable_db_flash_cartridge;
 int enable_jim;
+int enable_merlin;
 
 char *getstringcfg(char *name)
 {
@@ -99,6 +100,7 @@ void loadconfig()
         mrbmode=getintcfg("mrbmode",0);
         ulamode=getintcfg("ulamode",0);
         enable_jim = getintcfg("enable_jim",0);
+        enable_merlin = getintcfg("enable_merlin",0);
 
         drawmode=getintcfg("filter",0);
         
@@ -165,6 +167,7 @@ void saveconfig()
         writeintcfg("mrbmode",mrbmode);
         writeintcfg("ulamode",ulamode);
         writeintcfg("enable_jim", enable_jim);
+        writeintcfg("enable_merlin", enable_merlin);
         
         writeintcfg("filter",drawmode);
         

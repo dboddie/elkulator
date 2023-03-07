@@ -32,7 +32,7 @@ MENU videomenu[3];
 MENU soundmenu[7];
 MENU keymenu[2];
 MENU dischmenu[4];
-MENU memmenu[6];
+MENU memmenu[7];
 MENU mrbmenu[4];
 MENU ulamenu[3];
 MENU settingsmenu[7];
@@ -65,6 +65,7 @@ void updatelinuxgui()
         for (x=0;x<3;x++)  mrbmenu[x].flags=(mrbmode==(int)mrbmenu[x].dp)?D_SELECTED:0;
         for (x=0;x<2;x++)  ulamenu[x].flags=(ulamode==(int)ulamenu[x].dp)?D_SELECTED:0;
         memmenu[4].flags=(enable_jim)?D_SELECTED:0;
+        memmenu[5].flags=(enable_merlin)?D_SELECTED:0;
         joymenu[0].flags=(plus1)?D_SELECTED:0;
         joymenu[1].flags=(firstbyte)?D_SELECTED:0;
 //        for (x=0;x<5;x++)  waveformmenu[x].flags=(curwave==(int)waveformmenu[x].dp)?D_SELECTED:0;
@@ -561,13 +562,30 @@ int gui_jim()
         return D_O_K;
 }
 
-MENU memmenu[6]=
+int gui_merlin()
+{
+        enable_merlin = !enable_merlin;
+        enable_jim = enable_merlin;
+        if (enable_merlin) {
+            /* Disable all the normal Electron expansions. */
+            plus1 = plus3 = mrb = turbo = sndex = firstbyte = dfsena =
+                    adfsena = enable_mgc = enable_db_flash_cartridge = 0;
+            /* Disable enhancements. */
+            ulamode = 0;
+        }
+        resetit=1;
+        updatelinuxgui();
+        return D_O_K;
+}
+
+MENU memmenu[7]=
 {
         {"&Elektuur/Slogger turbo board",gui_turbo,NULL,0,NULL},
         {"&Slogger/Jafa Master RAM board",gui_mrb,NULL,0,NULL},
         {"&Master RAM board mode",NULL,mrbmenu,0,NULL},
         {"Enhanced &ULA mode",NULL,ulamenu,0,NULL},
         {"&Paged RAM in FD (JIM)",gui_jim,NULL,0,NULL},
+        {"Merlin M2105 features",gui_merlin,NULL,0,NULL},
         {NULL,NULL,NULL,0,NULL}
 };
 

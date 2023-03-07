@@ -184,6 +184,7 @@ extern int firstbyte;
 extern int enable_mgc;
 extern int enable_db_flash_cartridge;
 extern int enable_jim;
+extern int enable_merlin;
 
 extern int keylookup[128];
 extern int plus1;
